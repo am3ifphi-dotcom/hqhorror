@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>影の囁き - Whispers in the Shadow</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Loading screen -->
+        <div id="loading-screen">
+            <div class="loading-content">
+                <div class="loading-title">影の囁き</div>
+                <div class="loading-subtitle">Whispers in the Shadow</div>
+                <div class="loading-bar-container">
+                    <div class="loading-bar" id="loading-bar"></div>
+                </div>
+                <div class="loading-text" id="loading-text">初期化中...</div>
+            </div>
+        </div>
+
+        <!-- Title screen -->
+        <div id="title-screen" class="hidden">
+            <canvas id="title-canvas"></canvas>
+            <div class="title-overlay">
+                <h1 class="game-title">影の囁き</h1>
+                <p class="game-subtitle">Whispers in the Shadow</p>
+                <div class="title-menu">
+                    <button class="menu-btn" id="btn-start">始める</button>
+                    <button class="menu-btn" id="btn-credits">クレジット</button>
+                </div>
+                <p class="title-hint">Click or press Enter to start</p>
+            </div>
+        </div>
+
+        <!-- Game canvas -->
+        <canvas id="game-canvas"></canvas>
+        
+        <!-- Dialogue overlay -->
+        <div id="dialogue-overlay" class="hidden">
+            <div id="portrait-container">
+                <canvas id="portrait-canvas"></canvas>
+            </div>
+            <div id="dialogue-box">
+                <div id="speaker-name"></div>
+                <div id="dialogue-text"></div>
+                <div id="dialogue-indicator">▼</div>
+            </div>
+        </div>
+
+        <!-- Horror overlay effects -->
+        <canvas id="fx-canvas"></canvas>
+        
+        <!-- Screen flash -->
+        <div id="screen-flash"></div>
+        
+        <!-- Credits screen -->
+        <div id="credits-screen" class="hidden">
+            <div class="credits-content">
+                <h2>使用アセットクレジット</h2>
+                <div id="credits-list"></div>
+                <button class="menu-btn" id="btn-back">戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/audio.js"></script>
+    <script src="js/sprites.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/engine.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
