@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 import { Atlas, Sheet, Input, loadImage, clamp, damp, lerp, noise1 } from './engine/core.js';
 import { audio } from './engine/audio.js';
-import { PostFX } from './engine/postfx.js';
+import { createPostFX, FallbackPostFX } from './engine/postfx.js';
 import { ScreenFX, Particles, flicker } from './engine/fx.js';
 import { UI } from './ui/ui.js';
 import { ROOMS } from './game/rooms.js';
@@ -92,7 +92,7 @@ class Game {
     this.sctx.imageSmoothingEnabled = false;
 
     const postCanvas = document.getElementById('post');
-    this.post = new PostFX(postCanvas);
+    this.post = createPostFX(postCanvas);
 
     const [atlasImg, atlasJson] = await Promise.all([
       loadImage('/assets/atlas.png'),
@@ -140,6 +140,9 @@ class Game {
     stage.style.height = h + 'px';
     document.documentElement.style.setProperty('--u', (h / 100).toFixed(3));
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.viewW = w;
+    this.viewH = h;
+    this.dpr = dpr;
     this.post.resize(w, h, dpr);
   }
 
@@ -486,7 +489,7 @@ class Game {
       this.drawScene(ctx, t);
     }
     const fear = this.fear;
-    this.post.render(this.scene, {
+    const p = {
       time: t,
       fear,
       flash: this.sfx.flashV + (this.lightning > 0 ? this.lightning * 0.35 : 0),
@@ -497,7 +500,18 @@ class Game {
       desat: 0.1 + fear * 0.22,
       wobble: fear * 0.9 + this.sfx.glitchV * 1.4,
       bloom: 0.6,
-    });
+    };
+    try {
+      this.post.render(this.scene, p);
+    } catch (e) {
+      // never let a GL hiccup kill the frame loop: drop to the 2D present pass
+      console.warn('[postfx] disabled after error:', e.message);
+      const c = document.getElementById('post');
+      const fb = new FallbackPostFX(c);
+      fb.resize(this.viewW || VIEW_W, this.viewH || VIEW_H, this.dpr || 1);
+      this.post = fb;
+      this.post.render(this.scene, p);
+    }
   }
 
   drawTitle(ctx, t) {

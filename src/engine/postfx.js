@@ -105,6 +105,60 @@ void main() {
   gl_FragColor = vec4(col, 1.0);
 }`;
 
+/**
+ * Software fallback used when WebGL is unavailable or the shader fails:
+ * the scene canvas is simply blitted to the screen, with the few effects that
+ * matter for legibility (fade / flash / vignette) emulated in 2D.  The game
+ * stays playable -- it just loses the grain, aberration and bloom.
+ */
+export class FallbackPostFX {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d', { alpha: false });
+    this.w = canvas.width;
+    this.h = canvas.height;
+    this.fallback = true;
+  }
+  resize(w, h, dpr = 1) {
+    this.canvas.width = Math.round(w * dpr);
+    this.canvas.height = Math.round(h * dpr);
+    this.w = this.canvas.width;
+    this.h = this.canvas.height;
+    this.ctx.imageSmoothingEnabled = false;
+  }
+  render(src, p = {}) {
+    const ctx = this.ctx;
+    ctx.imageSmoothingEnabled = false;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(src, 0, 0, this.w, this.h);
+    if (p.vignette > 0.001) {
+      const g = ctx.createRadialGradient(this.w / 2, this.h / 2, Math.min(this.w, this.h) * 0.28, this.w / 2, this.h / 2, Math.max(this.w, this.h) * 0.72);
+      g.addColorStop(0, 'rgba(0,0,0,0)');
+      g.addColorStop(1, `rgba(0,0,0,${Math.min(0.9, p.vignette * 2.6)})`);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, this.w, this.h);
+    }
+    if (p.flash > 0.001) {
+      ctx.fillStyle = `rgba(255,255,255,${Math.min(1, p.flash)})`;
+      ctx.fillRect(0, 0, this.w, this.h);
+    }
+    if (p.fade > 0.001) {
+      ctx.fillStyle = `rgba(0,0,0,${Math.min(1, p.fade)})`;
+      ctx.fillRect(0, 0, this.w, this.h);
+    }
+  }
+}
+
+/** never throws: returns the WebGL pass, or the 2D fallback if it is unusable */
+export function createPostFX(canvas) {
+  try {
+    return new PostFX(canvas);
+  } catch (e) {
+    console.warn('[postfx] WebGL unavailable, falling back to 2D present:', e.message);
+    return new FallbackPostFX(canvas);
+  }
+}
+
 export class PostFX {
   constructor(canvas) {
     this.canvas = canvas;

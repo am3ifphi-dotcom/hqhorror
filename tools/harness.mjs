@@ -159,11 +159,27 @@ export async function boot(opts = {}) {
     set(v) { this.__h = v | 0; if (this.__napi) this.__napi.height = v | 0; },
     configurable: true,
   });
+  const noWebGL = opts.noWebGL ?? process.env.NOWEBGL === '1';
   proto.getContext = function (type) {
-    if (type !== '2d') return glStub();
+    if (type !== '2d') return noWebGL ? null : glStub();
     if (!real) return ctx2dStub(this);
     if (!this.__napi) this.__napi = napi.createCanvas(this.__w || 300, this.__h || 150);
-    return this.__napi.getContext('2d');
+    const nctx = this.__napi.getContext('2d');
+    // @napi-rs/canvas only accepts ITS OWN canvas objects, while the game (as a
+    // browser would) passes DOM elements.  Translate on the way in.
+    const el = this;
+    return new Proxy(nctx, {
+      get(o, k) {
+        if (k === 'canvas') return el;
+        const v = o[k];
+        if (typeof v !== 'function') return v;
+        if (k === 'drawImage' || k === 'createPattern') {
+          return (...a) => v.apply(o, a.map((x) => (x && x.__napi ? x.__napi : x)));
+        }
+        return v.bind(o);
+      },
+      set(o, k, v) { o[k] = v; return true; },
+    });
   };
 
   window.AudioContext = FakeAudioContext;
