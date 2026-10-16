@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>しずかな家 — THE QUIET HOUSE</title>
+    <link rel="stylesheet" href="/src/style.css" />
+    <link rel="preload" href="/assets/atlas.png" as="image" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="stage">
+        <canvas id="post"></canvas>
+
+        <!-- ============ in-game UI ============ -->
+        <div id="ui">
+          <div id="chapter" class="chapter"><span></span></div>
+
+          <div id="dialogue" class="hidden">
+            <div id="portrait"><img alt="" /></div>
+            <div id="namebox"><span></span></div>
+            <div id="textbox">
+              <p id="dtext"></p>
+              <div id="nextmark">▼</div>
+            </div>
+          </div>
+
+          <div id="toast" class="hidden"><span></span></div>
+
+          <div id="hud">
+            <div id="items"></div>
+            <div id="fearwrap"><div id="fearbar"></div></div>
+          </div>
+
+          <div id="prompt" class="hidden"><span></span></div>
+
+          <div id="letterbox-top" class="bar"></div>
+          <div id="letterbox-bottom" class="bar"></div>
+        </div>
+
+        <!-- ============ title ============ -->
+        <div id="title">
+          <div class="title-rain"></div>
+          <div class="title-inner">
+            <h1><span class="kanji">静</span><span class="kanji">か</span><span class="kanji">な</span><span class="kanji">家</span></h1>
+            <p class="sub">THE QUIET HOUSE</p>
+            <p class="press">— Z キーで 扉をあける —</p>
+          </div>
+          <div class="title-credits">
+            外部アセット: LPC Revised (OGA-BY 3.0) / Kenney (CC0 1.0) / Shippori Mincho (SIL OFL 1.1)
+          </div>
+        </div>
+
+        <!-- ============ boot / consent ============ -->
+        <div id="boot">
+          <div class="boot-inner">
+            <p class="boot-title">しずかな家</p>
+            <p class="boot-note">
+              音声が出ます。ヘッドホン推奨・音量注意。<br />
+              クリックで開始（ブラウザの仕様で音声はクリック後に有効化されます）
+            </p>
+            <button id="bootbtn">起動する</button>
+            <p class="boot-key">操作: <b>矢印 / WASD</b> 移動 ・ <b>Z</b> 調べる・進む ・ <b>X</b> メニュー ・ <b>Shift</b> 走る</p>
+          </div>
+        </div>
+
+        <div id="pause" class="hidden">
+          <div class="pause-inner">
+            <h2>一時停止</h2>
+            <div class="pause-rows"></div>
+            <p class="hint">Esc でもどる</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
